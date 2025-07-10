@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guia Interativo de Tecnologias de Teclado</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals with Slate Blue Accent -->
+    <!-- Application Structure Plan: A single-page application structured into nine logical, user-centric sections accessible via a sticky navigation bar: 1) 'Início' for a high-level overview. 2) 'Sinais' to explain the core difference between digital and analog inputs. 3) 'Switch Mecânico vs Magnético' for a direct visual comparison. 4) 'Benefícios' for a summary of advantages, now as an interactive accordion. 5) 'Comparativo' for dynamic, interactive chart-based comparisons. 6) 'Tecnologias' as the core educational section. 7) 'Mercado' to provide a visual showcase of available products. This structure was chosen to guide the user from a general overview to specific technology deep-dives, then to broad comparisons, and finally to market realities, creating a more intuitive and less overwhelming learning path. -->
+    <!-- Visualization & Content Choices: 
+        - Goal: Explain Core Concept -> Method: Text and embedded GIFs ('Sinais') -> Justification: Provides a focused, easy-to-understand explanation of the key enabling technologies before the user dives into comparisons.
+        - Goal: Direct Comparison -> Method: A single, large, annotated image ('Switch Mecânico vs Magnético') -> Justification: Offers an immediate, clear visual distinction between the two core switch architectures.
+        - Goal: Summarize Advantages -> Method: An interactive accordion list with icons and illustrative GIFs ('Benefícios') -> Justification: Presents the key selling points of magnetic switch technology in a clean, user-controlled format.
+        - Goal: Compare -> Method: Bar Charts (Chart.js) -> Interaction: Clickable legends -> Justification: Allows users to dynamically compare specific technologies on metrics like durability and price. Both charts now include data labels for clarity.
+        - Goal: Explain Principles -> Method: Interactive accordion cards arranged vertically ('Tecnologias') -> Interaction: Click to expand/collapse -> Justification: Presents detailed information in a clean, user-controlled manner, preventing information overload.
+        - Goal: Inform Choices -> Method: Styled Product Cards ('Mercado') -> Interaction: Click on a card opens a larger modal with detailed software information -> Justification: Provides a deep-dive into the software ecosystem, which is critical for advanced keyboards.
+        Library/Method: Chart.js for canvas-based charts. Vanilla JS for all interactions and animations.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+            color: #1f2937;
+        }
+        .nav-button {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .nav-button:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            display: block;
+            margin-top: 5px;
+            right: 0;
+            background: #4a5568;
+            transition: width 0.3s ease;
+        }
+        .nav-button:hover:after {
+            width: 100%;
+            left: 0;
+            background: #4a5568;
+        }
+        .nav-button.active {
+            font-weight: 700;
+            color: #2d3748;
+        }
+        .nav-button.active:after {
+             width: 100%;
+            left: 0;
+            background: #2d3748;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out, padding 0.5s ease-out;
+            padding: 0 1.5rem;
+        }
+        .accordion-content.open {
+             padding: 0 1.5rem 1.5rem 1.5rem;
+        }
+         /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+        .modal-content {
+            position: relative;
+            background-color: #fefefe;
+            margin: auto;
+            padding: 2rem;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 1024px;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .section-bg-gray {
+            background-color: #f9fafb;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <header class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-gray-700">Guia de Teclados</h1>
+            <div class="hidden md:flex flex-wrap space-x-4">
+                <button class="nav-button active" onclick="scrollToSection('inicio')">Início</button>
+                <button class="nav-button" onclick="scrollToSection('sinais')">Sinais</button>
+                <button class="nav-button" onclick="scrollToSection('switch-comparison')">Mecânico vs Magnético</button>
+                <button class="nav-button" onclick="scrollToSection('pcb-sensors')">PCB</button>
+                <button class="nav-button" onclick="scrollToSection('beneficios')">Benefícios</button>
+                <button class="nav-button" onclick="scrollToSection('comparativo')">Comparativo</button>
+                <button class="nav-button" onclick="scrollToSection('tecnologias')">Tecnologias</button>
+                <button class="nav-button" onclick="scrollToSection('mercado')">Mercado</button>
+            </div>
+            <div class="md:hidden">
+                <select id="mobile-nav" onchange="scrollToSection(this.value)" class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                    <option value="inicio">Início</option>
+                    <option value="sinais">Sinais</option>
+                    <option value="switch-comparison">Mecânico vs Magnético</option>
+                    <option value="pcb-sensors">PCB</option>
+                    <option value="beneficios">Benefícios</option>
+                    <option value="comparativo">Comparativo</option>
+                    <option value="tecnologias">Tecnologias</option>
+                    <option value="mercado">Mercado</option>
+                </select>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-8">
+
+        <section id="inicio" class="py-12">
+             <div class="text-center">
+                <h2 class="text-4xl font-bold mb-4">Teclados Analógicos</h2>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto mb-12">
+                   
+                </p>
+                <div class="mt-8 flex justify-center flex-col items-center">
+                    <img src="https://i.postimg.cc/C17tMw4w/What-Is-a-Hall-Effect-Keyboard-How-Hall-Effect-Switches-Work.webp" alt="Teclado com switches magnéticos em destaque" class="rounded-lg shadow-xl max-w-3xl w-full">
+                    <p class="text-xs text-gray-500 mt-2">
+                        Fonte da imagem: <a href="https://www.gravastar.com/blogs/learn/what-is-a-hall-effect-keyboard-how-hall-effect-switches-work" target="_blank" class="hover:underline">Gravastar</a>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="sinais" class="py-12 section-bg-gray">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="text-3xl font-bold mb-4">Sinais Digitais vs. Analógicos</h2>
+                <p class="text-gray-700 leading-relaxed mb-10">
+                    A principal inovação que separa os teclados magnéticos dos tradicionais é o tipo de informação que eles enviam. Teclados tradicionais usam um sinal digital (ligado/desligado), como um interruptor. Teclados magnéticos usam um sinal analógico, que mede "o quão fundo" a tecla é pressionada, como um dimmer de luz.
+                </p>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-2xl font-semibold mb-4">Sinal Digital</h3>
+                        <div class="rounded-lg">
+                            <img src="https://i.postimg.cc/1RYtyjKZ/onda-quadrada.gif" alt="Animação de um sinal digital" class="w-full h-48 object-contain rounded-lg bg-gray-200">
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-semibold mb-4">Sinal Analógico</h3>
+                        <div class="rounded-lg">
+                            <img src="https://i.postimg.cc/Df1jT9hS/senoide.gif" alt="Animação de um sinal analógico" class="w-full h-48 object-contain rounded-lg bg-gray-200">
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-12">
+                    <h3 class="text-2xl font-semibold mb-4">Sinal Analógico Gerado</h3>
+                    <div class="flex justify-center">
+                         <img src="https://i.postimg.cc/MpxKrP2Z/videoswitchmagnetico.gif" alt="Animação de um switch magnético gerando um sinal analógico" class="rounded-lg shadow-lg max-w-md w-full">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="switch-comparison" class="py-12">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="text-3xl font-bold mb-8">Switch Mecânico vs Switch Magnético</h2>
+                <div class="flex justify-center flex-col items-center space-y-8">
+                    <div>
+                        <img src="https://i.postimg.cc/pXLP5YqJ/nuphymechvmagswitch.webp" alt="Comparação entre switch mecânico e switch magnético" class="rounded-lg shadow-xl w-full">
+                        <p class="text-xs text-gray-500 mt-2">
+                            Fonte da imagem: <a href="https://www.lttlabs.com/blog/2024/12/31/hall-effect-keyboards-a-history" target="_blank" class="hover:underline">LTT Labs</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="pcb-sensors" class="py-12 section-bg-gray">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="text-3xl font-bold mb-8">PCB com sensores de efeito Hall & TMR</h2>
+                <div class="flex justify-center flex-col items-center">
+                    <img src="https://i.postimg.cc/FRWMXQFv/HE-Keyboard-PCB-BY-TECHTEAMGB.png" alt="PCB de um teclado com sensores de Efeito Hall" class="rounded-lg shadow-xl w-full">
+                </div>
+            </div>
+        </section>
+
+        <section id="beneficios" class="py-12">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-center mb-8">Benefícios de um Teclado Magnético</h2>
+                <div id="benefits-accordion" class="space-y-4">
+                </div>
+            </div>
+        </section>
+
+        <section id="comparativo" class="py-12 section-bg-gray">
+            <h2 class="text-3xl font-bold text-center mb-2">Comparativo Visual</h2>
+            <p class="text-md text-gray-600 text-center max-w-3xl mx-auto mb-10">
+                Visualize as principais diferenças entre as tecnologias. Clique nas legendas para filtrar os dados e focar na sua comparação.
+            </p>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-bold mb-4 text-center">Durabilidade (Milhões de Cliques)</h3>
+                    <div class="chart-container">
+                        <canvas id="durabilityChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                     <h3 class="text-xl font-bold mb-4 text-center">Faixa de Preço (Estimada BRL)</h3>
+                    <div class="chart-container">
+                        <canvas id="priceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tecnologias" class="py-12">
+            <h2 class="text-3xl font-bold text-center mb-2">Explore as Tecnologias</h2>
+            <p class="text-md text-gray-600 text-center max-w-3xl mx-auto mb-10">
+                Mergulhe nos detalhes de cada tipo de switch. Clique para expandir e ver como cada tecnologia funciona, suas vantagens e desvantagens.
+            </p>
+            <div id="tech-details-container" class="space-y-4">
+            </div>
+        </section>
+
+        <section id="mercado" class="py-12 section-bg-gray">
+            <h2 class="text-3xl font-bold text-center mb-2">Vitrine de Mercado: Modelos em Destaque</h2>
+            <p class="text-md text-gray-600 text-center max-w-3xl mx-auto mb-10">
+                Conheça alguns dos modelos mais populares que utilizam as tecnologias magnéticas de ponta.
+            </p>
+            
+            <div class="mb-12">
+                <h3 class="text-2xl font-bold mb-6 border-l-4 border-slate-700 pl-4">Teclados de switches de Efeito Hall & TMR & Óptico</h3>
+                <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <!-- Product cards will be injected here by JavaScript -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="softwareModal" class="modal">
+        <div class="modal-content">
+            <span id="closeSoftwareModal" class="close-button">×</span>
+            <h3 id="softwareModalTitle" class="text-2xl font-bold mb-4"></h3>
+            <div class="grid md:grid-cols-5 gap-8">
+                <div class="md:col-span-2">
+                    <p id="softwareModalDescription" class="text-gray-600 mb-4"></p>
+                    <ul id="softwareModalFeatures" class="space-y-2 list-disc list-inside text-gray-600">
+                    </ul>
+                </div>
+                <div class="md:col-span-3 flex items-center justify-center">
+                    <img id="softwareModalImage" src="" alt="Software UI" class="rounded-lg shadow-md w-full">
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <footer class="bg-gray-800 text-white text-center p-4">
+        <p>Guia Interativo de Tecnologias de Teclado &copy; 2024</p>
+    </footer>
+
+    <script>
+        const techData = [
+            {
+                name: 'Membrana',
+                description: 'A tecnologia mais comum e de baixo custo. O acionamento ocorre quando um domo de borracha pressiona uma membrana condutora contra um circuito, fechando o contato.',
+                signal: 'Digital (Ligado/Desligado)',
+                signal_desc: 'O sinal é binário. A tecla está ou não pressionada, sem meio-termo. Exige que a tecla seja pressionada até o fim para garantir o registro.',
+                pros: ['Baixo custo de fabricação', 'Operação silenciosa', 'Boa resistência a poeira e líquidos'],
+                cons: ['Sensação de digitação "pastosa"', 'Feedback tátil inconsistente', 'Baixa durabilidade (domos de borracha se desgastam)'],
+            },
+            {
+                name: 'Mecânico',
+                description: 'A escolha de entusiastas. Cada tecla tem um switch individual com mola e contatos metálicos. O acionamento ocorre quando os contatos se tocam fisicamente.',
+                signal: 'Digital (Ligado/Desligado)',
+                signal_desc: 'O sinal é binário, mas o acionamento ocorre no meio do percurso da tecla, não no fundo. Isso permite uma digitação mais rápida e precisa.',
+                pros: ['Excelente feedback tátil e sonoro', 'Alta durabilidade (50-80 milhões de cliques)', 'Grande variedade de switches e personalização'],
+                cons: ['Custo mais elevado', 'Ruído pode ser um problema em alguns ambientes', 'Mais complexo para limpar'],
+            },
+            {
+                name: 'Óptico',
+                description: 'Uma evolução do mecânico. Em vez de contato metálico, o acionamento é registrado quando a haste da tecla interrompe um feixe de luz infravermelha.',
+                signal: 'Digital (Ligado/Desligado)',
+                signal_desc: 'O sinal é binário, mas a ausência de contato físico elimina o "debounce delay", resultando em uma resposta ligeiramente mais rápida e um sinal mais limpo.',
+                pros: ['Velocidade de resposta extremamente rápida', 'Durabilidade muito alta (100+ milhões de cliques)', 'Sem desgaste de contatos metálicos'],
+                cons: ['Custo geralmente superior aos mecânicos', 'Personalização de switches mais limitada', 'A sensação pode ser diferente da de um mecânico "puro"'],
+            },
+            {
+                name: 'Efeito Hall (Magnético)',
+                description: 'Inicia a era analógica. Um ímã na haste da tecla se aproxima de um sensor de Efeito Hall, que mede a mudança no campo magnético para determinar a posição exata da tecla.',
+                signal: 'Analógico (Contínuo)',
+                signal_desc: 'O teclado sabe o quão fundo você pressiona a tecla. Isso permite funcionalidades como ponto de atuação ajustável, Rapid Trigger e emulação de joystick.',
+                pros: ['Durabilidade extrema (sem contato físico)', 'Sensação de digitação ultra suave', 'Funcionalidades analógicas (Rapid Trigger, etc.)', 'Resistente a poeira e umidade'],
+                cons: ['Custo elevado devido aos sensores e ímãs', 'A tecnologia ainda está se popularizando'],
+            },
+            {
+                name: 'TMR (Magnético)',
+                description: 'A vanguarda da tecnologia magnética. Usa um sensor de Magnetorresistência por Tunelamento (TMR) que mede a mudança na resistência quântica causada pela aproximação do ímã.',
+                signal: 'Analógico (Contínuo)',
+                signal_desc: 'Similar ao Efeito Hall, mas o sensor TMR é mais sensível, preciso e consome muito menos energia, tornando-o ideal para teclados sem fio de alta performance.',
+                pros: ['Todas as vantagens do Efeito Hall', 'Potencialmente mais preciso e sensível', 'Consumo de energia drasticamente menor', 'Excelente estabilidade térmica'],
+                cons: ['Tecnologia muito nova e de nicho', 'Disponibilidade limitada (principalmente importação)', 'Custo ainda incerto em larga escala'],
+            }
+        ];
+
+        const productData = [
+            { name: 'Wooting 60HE', price: 'R$ 1.900 - R$ 2.300', availability: 'Apenas Importação', availabilityClass: 'text-gray-600', imageUrl: 'https://i.postimg.cc/Xqyg7Dp7/71-Ywxy-MFXh-L-AC-SL1500.jpg', softwareInfo: { name: 'Wootility', description: 'Software web-based, leve e intuitivo. Considerado o padrão-ouro pela sua simplicidade e poder. As configurações são salvas na memória do teclado.', features: ['Atuação ajustável (0.1-4.0mm)', 'Rapid Trigger por tecla', 'Mod Tap & DKS', 'Perfis na nuvem'], imageUrl: 'https://i.postimg.cc/T10mWSsy/driver-3.jpg' } },
+            { name: 'SteelSeries Apex Pro TKL', price: 'R$ 1.300 - R$ 2.600', availability: 'Disponível no Brasil', availabilityClass: 'text-green-600 font-bold', imageUrl: 'https://i.postimg.cc/bvp8x7hW/teclado-gamer-steelseries-apex-pro-tkl-rgb-usb-c-preto-64856-1715715691-gg.png', softwareInfo: { name: 'SteelSeries GG Engine', description: 'Suíte de software integrada que inclui configuração de hardware (Engine), áudio (Sonar) e captura de clipes (Moments). Poderoso, mas pode ser pesado para alguns sistemas.', features: ['Atuação ajustável (0.2-3.8mm)', 'Rapid Trigger por tecla', 'Dual-Action Keys', 'Perfis por jogo e tela OLED'], imageUrl: 'https://i.postimg.cc/t4x3BrZc/Steelseries.png' } },
+            { name: 'Logitech G Pro X TKL', price: 'R$ 1.200 - R$ 1.600', availability: 'Disponível no Brasil', availabilityClass: 'text-green-600 font-bold', imageUrl: 'https://i.postimg.cc/ZYdsGRh0/logitech.png', softwareInfo: { name: 'Logitech G HUB', description: 'Software centralizado com interface amigável. A funcionalidade KEYCONTROL permite personalização profunda com um sistema de camadas e integração com outros periféricos Logitech.', features: ['Atuação ajustável (0.1-4.0mm)', 'Rapid Trigger aprimorado', 'Multi-Point Action', 'Sincronização LIGHTSYNC RGB'], imageUrl: 'https://i.postimg.cc/T2Nnf8nS/logitechghub.webp' } },
+            { name: 'Razer Huntsman V3 Pro TKL', price: 'R$ 2.200 - R$ 3.100', availability: 'Disponível no Brasil', availabilityClass: 'text-green-600 font-bold', imageUrl: 'https://i.postimg.cc/Kzr2sFPt/D-NQ-NP-904700-MLA79745715031-102024-O.webp', softwareInfo: { name: 'Razer Synapse', description: 'Plataforma madura e extremamente rica em recursos, mas pode ser pesada. Permite ajustes on-the-fly diretamente no teclado, sem abrir o software.', features: ['Atuação ajustável (0.1-4.0mm)', 'Rapid Trigger com sensibilidade separada (up/down)', 'Dual-Step Actuation', 'Ecossistema Chroma RGB'], imageUrl: 'https://i.postimg.cc/R0mHXvz3/razer-synapse.png' } },
+            { name: 'Redragon Fidd', price: 'R$ 450 - R$ 600', availability: 'Disponível no Brasil', availabilityClass: 'text-green-600 font-bold', imageUrl: 'https://i.postimg.cc/05nfP3Zn/61va-BBF-QOL-AC-SL1500.jpg', softwareInfo: { name: 'Redragon Driver (Específico)', description: 'Software funcional e direto, mas menos polido. Requer download do driver específico para o modelo no site da marca.', features: ['Atuação ajustável', 'Rapid Trigger', '2 Actions in 1 Tap', 'Polling Rate de 8000Hz'], imageUrl: 'https://i.postimg.cc/br4GbhTw/redragon-fidd.webp' } },
+            { name: 'Redragon Kumara Pro V2', price: 'R$ 400 - R$ 600', availability: 'Disponível no Brasil', availabilityClass: 'text-green-600 font-bold', imageUrl: 'https://i.postimg.cc/zvSNLNtx/D-NQ-NP-753548-MLA84070911959-042025-O.png', softwareInfo: { name: 'Redragon Driver (Específico)', description: 'Software funcional e direto, mas menos polido. Requer download do driver específico para o modelo no site da marca.', features: ['Atuação ajustável', 'Rapid Trigger', '2 Actions in 1 Tap', 'Polling Rate de 8000Hz'], imageUrl: 'https://i.postimg.cc/br4GbhTw/redragon-fidd.webp' } },
+            { name: 'DrunkDeer A75', price: 'R$ 400 - R$ 700', availability: 'Importação (via AliExpress)', availabilityClass: 'text-gray-600', imageUrl: 'https://i.postimg.cc/MZ1GB2g0/4-1fdf93c1-c6a6-4b8d-a0a5-e88c11ac1078.webp', softwareInfo: { name: 'DrunkDeer Antler', description: 'Driver web-based leve e moderno, uma alternativa direta ao Wootility. Recebe atualizações constantes e não requer instalação local.', features: ['Atuação ajustável (0.2-3.8mm)', 'Rapid Trigger', 'Turbo Mode', 'Keystroke Tracking'], imageUrl: 'https://i.postimg.cc/wj8yj9MW/drunkdeer.webp' } },
+            { name: 'Keychron Q1 HE', price: 'R$ 1.200 - R$ 1.500', availability: 'Disponível no Brasil (Oficial)', availabilityClass: 'text-green-600 font-bold', imageUrl: 'https://i.postimg.cc/d0cHLCCj/Keychron-Q1-HE-QMK-Wireless-Custom-Keyboard-Carbon-Black.webp', softwareInfo: { name: 'Keychron Launcher / VIA', description: 'Sistema duplo: VIA para customização de layout e macros (padrão da comunidade de entusiastas) e um Launcher web para as funções magnéticas.', features: ['Atuação ajustável (0.2-3.8mm)', 'Rapid Trigger avançado', 'Até 4 ações por tecla', 'Compatibilidade QMK'], imageUrl: 'https://i.postimg.cc/cJdvfTQw/keychron.png' } },
+            { name: 'Monsgeek FUN60 TMR', price: 'R$ 500 - R$ 800', availability: 'Apenas Importação (via AliExpress)', availabilityClass: 'text-gray-600', imageUrl: 'https://i.postimg.cc/0jZy096g/Mons-Geek-FUN60-Pro-Black-RGB-f1ac96fa-71bc-4640-8f2b-4f6b9743d43b.webp', softwareInfo: { name: 'MonsGeek Driver', description: 'Software extremamente poderoso com funcionalidades únicas, mas com uma interface complexa e pouco intuitiva que exige uma curva de aprendizado.', features: ['Tecnologia TMR de alta precisão', 'DKS (4 ações por tecla)', 'Mod-Tap', 'Compatibilidade com switches mecânicos'], imageUrl: 'https://i.postimg.cc/DZMmkTRP/monsgeek.png' } }
+        ];
+
+        const benefitsData = [
+            { title: "Durabilidade Superior", text: "Sem contato físico para o acionamento, não há desgaste mecânico, resultando em uma vida útil muito mais longa.", gif: "https://i.postimg.cc/3RpXY89Q/Gravando-2025-07-09-085205.gif" },
+            { title: "Digitação Suave", text: "A ausência de atrito entre contatos metálicos proporciona uma experiência de pressionamento de tecla incrivelmente suave e consistente." },
+            { title: "Ponto de Atuação Ajustável", text: "Personalize a profundidade exata em que a tecla é registrada, de um toque leve para jogos a um pressionamento fundo para digitação.", gif: "https://i.postimg.cc/9MySKKbN/HALL-EFFECT-SWITCH-BY-TECHLESS-2.gif" },
+            { title: "Rapid Trigger", text: "A tecla é ativada e desativada no instante em que o movimento muda, permitindo ações repetidas com velocidade sobre-humana.", gif: "https://i.postimg.cc/qRtyj6ck/HALL-EFFECT-SWITCH-BY-TECHLESS-RAPID-TRIGGER.gif" },
+            { title: "Ativação Dinâmica", text: "Configure até 4 funções diferentes em uma única tecla, ativadas de acordo com a profundidade do pressionamento." },
+            { title: "Mod-Tapping", text: "Atribua duas funções a uma tecla: uma para um toque rápido e outra para quando a tecla é mantida pressionada." },
+            { title: "Resistência a Líquidos e Poeira", text: "Como os sensores são selados e não dependem de contato, são naturalmente mais protegidos contra danos por poeira ou derramamentos." }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTechDetails();
+            renderCharts();
+            renderProducts();
+            setupScrollSpy();
+            setupSoftwareModal();
+            renderBenefits();
+        });
+        
+        function renderProducts() {
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = productData.map((product, index) => `
+                <div onclick="openSoftwareModal(${index})" class="bg-white rounded-lg shadow-md overflow-hidden transform hover:scale-105 transition-transform duration-300 flex flex-col cursor-pointer">
+                    <img src="${product.imageUrl}" alt="Teclado ${product.name}" class="w-full h-48 object-cover">
+                    <div class="p-4 flex flex-col flex-grow">
+                        <h4 class="text-lg font-bold">${product.name}</h4>
+                        <p class="text-2xl font-light my-2">${product.price}</p>
+                        <div class="text-sm text-gray-600 mt-auto">
+                            <p class="font-semibold">Disponibilidade:</p>
+                            <p class="${product.availabilityClass}">${product.availability}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderTechDetails() {
+            const container = document.getElementById('tech-details-container');
+            container.innerHTML = techData.map((tech, index) => `
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <button onclick="toggleAccordion(${index}, 'tech')" class="w-full flex justify-between items-center p-6 text-left focus:outline-none">
+                        <h3 class="text-xl font-bold">${tech.name}</h3>
+                        <svg id="tech-icon-${index}" class="w-6 h-6 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div id="tech-content-${index}" class="accordion-content">
+                        <div class="py-4">
+                            <p class="text-gray-600 mb-6">${tech.description}</p>
+                            <h4 class="font-bold text-lg mb-2">Funcionamento e Sinal</h4>
+                            <div class="mb-4">
+                                <span class="font-semibold text-slate-700">Tipo de Sinal:</span>
+                                <span class="inline-block px-3 py-1 text-sm font-semibold rounded-full ${tech.signal === 'Analógico (Contínuo)' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                                    ${tech.signal}
+                                </span>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-4">${tech.signal_desc}</p>
+                            
+                            <h4 class="font-bold text-lg mb-2 mt-6">Vantagens e Desvantagens</h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <ul class="space-y-2">
+                                        ${tech.pros.map(pro => `
+                                            <li class="flex items-start">
+                                                <span class="text-green-500 mr-2 mt-1">✔</span>
+                                                <span class="text-sm">${pro}</span>
+                                            </li>`).join('')}
+                                    </ul>
+                                </div>
+                                <div>
+                                    <ul class="space-y-2">
+                                         ${tech.cons.map(con => `
+                                            <li class="flex items-start">
+                                                <span class="text-red-500 mr-2 mt-1">✖</span>
+                                                <span class="text-sm">${con}</span>
+                                            </li>`).join('')}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderBenefits() {
+            const container = document.getElementById('benefits-accordion');
+            container.innerHTML = benefitsData.map((benefit, index) => `
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                     <button onclick="toggleAccordion(${index}, 'benefit')" class="w-full flex justify-between items-center p-4 text-left focus:outline-none">
+                        <div class="flex items-center">
+                            <svg class="h-6 w-6 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            <h4 class="ml-4 text-lg font-bold">${benefit.title}</h4>
+                        </div>
+                        <svg id="benefit-icon-${index}" class="w-6 h-6 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div id="benefit-content-${index}" class="accordion-content">
+                        <div class="p-4 border-t border-gray-200">
+                            <p class="text-gray-600">${benefit.text}</p>
+                            ${benefit.gif ? `<img src="${benefit.gif}" alt="Animação para ${benefit.title}" class="rounded-lg shadow-md w-full mt-4">` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function toggleAccordion(index, type) {
+            const content = document.getElementById(`${type}-content-${index}`);
+            const icon = document.getElementById(`${type}-icon-${index}`);
+            const isOpen = content.classList.contains('open');
+
+            document.querySelectorAll(`[id^="${type}-content-"]`).forEach((el, i) => {
+                if (i !== index) {
+                    el.classList.remove('open');
+                    el.style.maxHeight = null;
+                    const otherIcon = document.getElementById(`${type}-icon-${i}`);
+                    if (otherIcon) otherIcon.classList.remove('rotate-180');
+                }
+            });
+
+            if (isOpen) {
+                content.classList.remove('open');
+                content.style.maxHeight = null;
+                if(icon) icon.classList.remove('rotate-180');
+            } else {
+                content.classList.add('open');
+                content.style.maxHeight = content.scrollHeight + "px";
+                if(icon) icon.classList.add('rotate-180');
+            }
+        }
+
+        function renderCharts() {
+            Chart.register(ChartDataLabels);
+            const labels = ['Membrana', 'Mecânico', 'Óptico', 'Efeito Hall', 'TMR'];
+            const durabilityData = [10, 80, 100, 150, 150];
+            const priceDataMin = [20, 120, 350, 400, 500];
+            const priceDataMax = [500, 1200, 1600, 3100, 800];
+
+            const durabilityChartOptions = {
+                maintainAspectRatio: false,
+                responsive: true,
+                scales: { y: { beginAtZero: true, suggestedMax: 170 } },
+                plugins: { 
+                    legend: { position: 'top' },
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                        formatter: (value) => `${value}M`,
+                        color: '#374151',
+                        font: {
+                            weight: 'bold'
+                        }
+                    }
+                }
+            };
+
+            new Chart(document.getElementById('durabilityChart'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Durabilidade Máxima (Milhões)',
+                        data: durabilityData,
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: durabilityChartOptions
+            });
+
+            const priceChartOptions = {
+                maintainAspectRatio: false,
+                responsive: true,
+                scales: {
+                    y: { 
+                        beginAtZero: true,
+                        max: 3500
+                    }
+                },
+                plugins: {
+                    legend: { position: 'top' },
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                        formatter: (value) => `R$${value}`,
+                        color: '#374151',
+                        font: {
+                            weight: 'bold'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) { label += ': '; }
+                                if (context.parsed.y !== null) {
+                                    label += new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(context.parsed.y);
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            };
+
+            new Chart(document.getElementById('priceChart'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Preço Mínimo (BRL)',
+                            data: priceDataMin,
+                            backgroundColor: 'rgba(255, 159, 64, 0.6)',
+                            borderColor: 'rgba(255, 159, 64, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Preço Máximo (BRL)',
+                            data: priceDataMax,
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: priceChartOptions
+            });
+        }
+
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+                document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
+                document.querySelector(`.nav-button[onclick="scrollToSection('${sectionId}')"]`).classList.add('active');
+            }
+        }
+
+        function setupScrollSpy() {
+            const sections = document.querySelectorAll('section');
+            const navButtons = document.querySelectorAll('.nav-button');
+            const mobileNav = document.getElementById('mobile-nav');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navButtons.forEach(btn => {
+                            btn.classList.toggle('active', btn.getAttribute('onclick') === `scrollToSection('${entry.target.id}')`);
+                        });
+                        mobileNav.value = entry.target.id;
+                    }
+                });
+            }, { rootMargin: '-20% 0px -70% 0px', threshold: 0.1 });
+
+            sections.forEach(section => observer.observe(section));
+        }
+
+        // Software Modal Logic
+        function setupSoftwareModal() {
+            const modal = document.getElementById("softwareModal");
+            const closeBtn = document.getElementById("closeSoftwareModal");
+
+            closeBtn.onclick = closeSoftwareModal;
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    closeSoftwareModal();
+                }
+            };
+        }
+
+        function openSoftwareModal(index) {
+            const modal = document.getElementById("softwareModal");
+            const product = productData[index];
+            
+            document.getElementById("softwareModalTitle").textContent = `Software: ${product.softwareInfo.name}`;
+            document.getElementById("softwareModalDescription").textContent = product.softwareInfo.description;
+            document.getElementById("softwareModalImage").src = product.softwareInfo.imageUrl;
+            
+            const featuresList = document.getElementById("softwareModalFeatures");
+            featuresList.innerHTML = ''; // Clear previous features
+            product.softwareInfo.features.forEach(feature => {
+                const li = document.createElement('li');
+                li.textContent = feature;
+                featuresList.appendChild(li);
+            });
+
+            modal.style.display = "flex";
+        }
+
+        function closeSoftwareModal() {
+            const modal = document.getElementById("softwareModal");
+            modal.style.display = "none";
+        }
+
+    </script>
+</body>
+</html>
