@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Warm Neutrals with Slate Blue Accent -->
+    <!-- Chosen Palette: Light Green & White -->
     <!-- Application Structure Plan: A single-page application structured into nine logical, user-centric sections accessible via a sticky navigation bar: 1) 'Início' for a high-level overview. 2) 'Sinais' to explain the core difference between digital and analog inputs. 3) 'Switch Mecânico vs Magnético' for a direct visual comparison. 4) 'Benefícios' for a summary of advantages, now as an interactive accordion. 5) 'Comparativo' for dynamic, interactive chart-based comparisons. 6) 'Tecnologias' as the core educational section. 7) 'Mercado' to provide a visual showcase of available products. This structure was chosen to guide the user from a general overview to specific technology deep-dives, then to broad comparisons, and finally to market realities, creating a more intuitive and less overwhelming learning path. -->
     <!-- Visualization & Content Choices: 
         - Goal: Explain Core Concept -> Method: Text and embedded GIFs ('Sinais') -> Justification: Provides a focused, easy-to-understand explanation of the key enabling technologies before the user dives into comparisons.
@@ -18,7 +18,7 @@
         - Goal: Summarize Advantages -> Method: An interactive accordion list with icons and illustrative GIFs ('Benefícios') -> Justification: Presents the key selling points of magnetic switch technology in a clean, user-controlled format.
         - Goal: Compare -> Method: Bar Charts (Chart.js) -> Interaction: Clickable legends -> Justification: Allows users to dynamically compare specific technologies on metrics like durability and price. Both charts now include data labels for clarity.
         - Goal: Explain Principles -> Method: Interactive accordion cards arranged vertically ('Tecnologias') -> Interaction: Click to expand/collapse -> Justification: Presents detailed information in a clean, user-controlled manner, preventing information overload.
-        - Goal: Inform Choices -> Method: Styled Product Cards ('Mercado') -> Interaction: Click on a card opens a larger modal with detailed software information -> Justification: Provides a deep-dive into the software ecosystem, which is critical for advanced keyboards.
+        - Goal: Inform Choices -> Method: Styled Product Cards ('Mercado') -> Interaction: Click on a card opens a modal with detailed software information -> Justification: Provides a deep-dive into the software ecosystem, which is critical for advanced keyboards.
         Library/Method: Chart.js for canvas-based charts. Vanilla JS for all interactions and animations.
     -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
@@ -121,8 +121,8 @@
             text-decoration: none;
             cursor: pointer;
         }
-        .section-bg-gray {
-            background-color: #f9fafb;
+        .section-bg-white {
+            background-color: #ffffff;
         }
     </style>
 </head>
@@ -130,7 +130,7 @@
 
     <header class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-gray-700">P&D Informática - Teclados</h1>
+            <h1 class="text-2xl font-bold text-gray-700">Guia de Teclados</h1>
             <div class="hidden md:flex flex-wrap space-x-4">
                 <button class="nav-button active" onclick="scrollToSection('inicio')">Início</button>
                 <button class="nav-button" onclick="scrollToSection('sinais')">Sinais</button>
@@ -160,9 +160,9 @@
 
         <section id="inicio" class="py-12">
              <div class="text-center">
-                <h2 class="text-4xl font-bold mb-4">Teclados Analógicos</h2>
+                <h2 class="text-4xl font-bold mb-4">A Evolução da Interação</h2>
                 <p class="text-lg text-gray-600 max-w-3xl mx-auto mb-12">
-                   
+                    O teclado é mais que um periférico; é a ponte entre você e o mundo digital. Da simplicidade da membrana à precisão quântica dos sensores TMR, cada tecnologia oferece uma experiência única. Este guia interativo foi criado para ajudá-lo a explorar, comparar e entender o universo dos teclados de computador para fazer a escolha perfeita para seu uso.
                 </p>
                 <div class="mt-8 flex justify-center flex-col items-center">
                     <img src="https://i.postimg.cc/C17tMw4w/What-Is-a-Hall-Effect-Keyboard-How-Hall-Effect-Switches-Work.webp" alt="Teclado com switches magnéticos em destaque" class="rounded-lg shadow-xl max-w-3xl w-full">
@@ -173,11 +173,11 @@
             </div>
         </section>
 
-        <section id="sinais" class="py-12 section-bg-gray">
+        <section id="sinais" class="py-12 section-bg-white">
             <div class="max-w-4xl mx-auto text-center">
                 <h2 class="text-3xl font-bold mb-4">Sinais Digitais vs. Analógicos</h2>
                 <p class="text-gray-700 leading-relaxed mb-10">
-                    A principal inovação que separa os teclados magnéticos dos tradicionais é o tipo de informação que eles enviam. Teclados tradicionais usam um sinal digital (ligado/desligado), como um interruptor. Teclados magnéticos usam um sinal analógico, que mede "o quão fundo" a tecla é pressionada, como um dimmer de luz.
+                    A principal inovação que separa os teclados magnéticos dos tradicionais é o tipo de informação que eles enviam. Teclados tradicionais usam um sinal **digital** (ligado/desligado), como um interruptor. Teclados magnéticos usam um sinal **analógico**, que mede *o quão fundo* a tecla é pressionada, como um dimmer de luz.
                 </p>
                 <div class="grid md:grid-cols-2 gap-8">
                     <div>
@@ -193,30 +193,22 @@
                         </div>
                     </div>
                 </div>
-                <div class="mt-12">
-                    <h3 class="text-2xl font-semibold mb-4">Sinal Analógico Gerado</h3>
-                    <div class="flex justify-center">
-                         <img src="https://i.postimg.cc/MpxKrP2Z/videoswitchmagnetico.gif" alt="Animação de um switch magnético gerando um sinal analógico" class="rounded-lg shadow-lg max-w-md w-full">
-                    </div>
-                </div>
             </div>
         </section>
 
         <section id="switch-comparison" class="py-12">
             <div class="max-w-4xl mx-auto text-center">
                 <h2 class="text-3xl font-bold mb-8">Switch Mecânico vs Switch Magnético</h2>
-                <div class="flex justify-center flex-col items-center space-y-8">
-                    <div>
-                        <img src="https://i.postimg.cc/pXLP5YqJ/nuphymechvmagswitch.webp" alt="Comparação entre switch mecânico e switch magnético" class="rounded-lg shadow-xl w-full">
-                        <p class="text-xs text-gray-500 mt-2">
-                            Fonte da imagem: <a href="https://www.lttlabs.com/blog/2024/12/31/hall-effect-keyboards-a-history" target="_blank" class="hover:underline">LTT Labs</a>
-                        </p>
-                    </div>
+                <div class="flex justify-center flex-col items-center">
+                    <img src="https://i.postimg.cc/pXLP5YqJ/nuphymechvmagswitch.webp" alt="Comparação entre switch mecânico e switch magnético" class="rounded-lg shadow-xl w-full">
+                    <p class="text-xs text-gray-500 mt-2">
+                        Fonte da imagem: <a href="https://www.lttlabs.com/blog/2024/12/31/hall-effect-keyboards-a-history" target="_blank" class="hover:underline">LTT Labs</a>
+                    </p>
                 </div>
             </div>
         </section>
         
-        <section id="pcb-sensors" class="py-12 section-bg-gray">
+        <section id="pcb-sensors" class="py-12 section-bg-white">
             <div class="max-w-4xl mx-auto text-center">
                 <h2 class="text-3xl font-bold mb-8">PCB com sensores de efeito Hall & TMR</h2>
                 <div class="flex justify-center flex-col items-center">
@@ -233,7 +225,7 @@
             </div>
         </section>
 
-        <section id="comparativo" class="py-12 section-bg-gray">
+        <section id="comparativo" class="py-12 section-bg-white">
             <h2 class="text-3xl font-bold text-center mb-2">Comparativo Visual</h2>
             <p class="text-md text-gray-600 text-center max-w-3xl mx-auto mb-10">
                 Visualize as principais diferenças entre as tecnologias. Clique nas legendas para filtrar os dados e focar na sua comparação.
@@ -263,7 +255,7 @@
             </div>
         </section>
 
-        <section id="mercado" class="py-12 section-bg-gray">
+        <section id="mercado" class="py-12 section-bg-white">
             <h2 class="text-3xl font-bold text-center mb-2">Vitrine de Mercado: Modelos em Destaque</h2>
             <p class="text-md text-gray-600 text-center max-w-3xl mx-auto mb-10">
                 Conheça alguns dos modelos mais populares que utilizam as tecnologias magnéticas de ponta.
@@ -297,7 +289,7 @@
 
 
     <footer class="bg-gray-800 text-white text-center p-4">
-        <p>Guia Interativo de Tecnologias de Teclado &copy; 2025</p>
+        <p>Guia Interativo de Tecnologias de Teclado &copy; 2024</p>
     </footer>
 
     <script>
@@ -361,7 +353,7 @@
             { title: "Digitação Suave", text: "A ausência de atrito entre contatos metálicos proporciona uma experiência de pressionamento de tecla incrivelmente suave e consistente." },
             { title: "Ponto de Atuação Ajustável", text: "Personalize a profundidade exata em que a tecla é registrada, de um toque leve para jogos a um pressionamento fundo para digitação.", gif: "https://i.postimg.cc/9MySKKbN/HALL-EFFECT-SWITCH-BY-TECHLESS-2.gif" },
             { title: "Rapid Trigger", text: "A tecla é ativada e desativada no instante em que o movimento muda, permitindo ações repetidas com velocidade sobre-humana.", gif: "https://i.postimg.cc/qRtyj6ck/HALL-EFFECT-SWITCH-BY-TECHLESS-RAPID-TRIGGER.gif" },
-            { title: "Ativação Dinâmica", text: "Configure até 4 funções diferentes em uma única tecla, ativadas de acordo com a profundidade do pressionamento." },
+            { title: "Ativação Dinâmica", text: "Configure até 4 funções diferentes em uma única tecla, ativadas de acordo com a profundidade do pressionamento.", gif: "https://i.postimg.cc/MpxKrP2Z/videoswitchmagnetico.gif" },
             { title: "Mod-Tapping", text: "Atribua duas funções a uma tecla: uma para um toque rápido e outra para quando a tecla é mantida pressionada." },
             { title: "Resistência a Líquidos e Poeira", text: "Como os sensores são selados e não dependem de contato, são naturalmente mais protegidos contra danos por poeira ou derramamentos." }
         ];
